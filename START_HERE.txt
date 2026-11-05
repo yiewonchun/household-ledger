@@ -1,0 +1,15 @@
+HOUSEHOLD LEDGER — setup (한국어 / English)
+
+Firebase authentication and Firestore rules have been enabled by you.
+
+1. Create a NEW public GitHub repository, e.g. household-ledger. Do not use your existing portfolio repository.
+2. Upload only index.html, cloud-sync.js and firebase-config.js from this folder to the ROOT of the new repository. Do NOT upload household JSON, spreadsheets, old V4 HTML, or backups.
+3. Repository > Settings > Pages > Deploy from a branch > main / (root) > Save.
+4. Firebase Console > Authentication > Settings > Authorized domains: add yiewonchun.github.io (no https://, no /household-ledger).
+5. Visit https://yiewonchun.github.io/household-ledger/ (only if you used that exact repository name) and sign in with Google.
+6. Choose Start a new ledger. In your old V4 file, export JSON; in new app Settings, import JSON. Your old record is NOT in this package.
+7. On iPhone, open same URL in Safari, sign in with SAME Google account, and use Share > Add to Home Screen.
+
+NOTE: Do not use a local file:// URL to test Google login. The site must be hosted on HTTPS. Sign in using one Google account. The app stores a local cache in browser storage even if signed out; use personal devices only. On two devices, avoid editing simultaneously.
+
+IMPORTANT: Check Firestore > Rules to confirm these match your deployed app route /users/{uid}/ledger/main (your previously published /users/{uid}/{document=**} also allows the app route).
