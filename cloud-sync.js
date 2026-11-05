@@ -22,6 +22,7 @@ const setStatus = msg => {status.textContent='☁ '+msg;};
 const useStore = data => {
   if (!data || !Array.isArray(data.budget) || !Array.isArray(data.actual)) throw new Error('Invalid ledger data');
   store = structuredClone(data);
+  const repairedPeriods = normalizeBudgetPeriods(store);
   if (!Array.isArray(store.bills)) store.bills=[];
   if (!store.spending) store.spending={};
   if (!store.config) store.config={};
@@ -30,6 +31,7 @@ const useStore = data => {
   if (!store.budget.some(x=>x.id===selected)) selected=sorted().at(-1)?.id;
   localStorage.setItem(KEY,JSON.stringify(store));
   render();
+  return repairedPeriods;
 };
 const serialize = data => JSON.stringify(data);
 const begin = () => {
@@ -45,8 +47,9 @@ const begin = () => {
     lastRemoteData=serialize(remote);
     if(dirty)return;
     if(lastRemoteData!==serialize(store)){
-      useStore(remote);
+      const repaired=useStore(remote);
       setStatus('다른 기기 변경 반영 / Updated');
+      if(repaired)window.queueCloudSave?.(store);
     }
   },err=>setStatus('동기화 오류 / Sync error: '+err.code));
 };
@@ -66,8 +69,9 @@ const startAuth = async user => {
   try {
     const snap=await getDoc(docRef);
     if(snap.exists() && snap.data()?.ledger){
-      useStore(snap.data().ledger);
+      const repaired=useStore(snap.data().ledger);
       begin();
+      if(repaired)window.queueCloudSave?.(store);
     } else {
       const hasLocal=store.budget.some(p=>p.entries?.length) || store.actual.length>0 || store.bills.length>0 || Object.values(store.spending||{}).some(p=>p.transactions?.length);
       show(hasLocal ? '이 계정에 아직 가계부가 없습니다. 이 기기의 기존 V4 데이터를 올리거나 새로 시작하세요. / No cloud ledger yet. Upload local V4 records or start new.' : '처음 사용하는 계정입니다. 새 가계부를 만드세요. 기존 V4 기록은 로그인 후 JSON 백업을 가져올 수도 있습니다. / No cloud ledger yet. Start new or import your JSON backup.',hasLocal?['upload','blank']:['blank']);
